@@ -1,4 +1,4 @@
-﻿using IAmAGame_Backend.Engine.Interface;
+﻿using IAmAGame_Backend.Engine.Interfaces;
 
 namespace IAmAGame_Backend.Engine.GifParty;
 
@@ -7,15 +7,18 @@ public class GameRoom : IGameRoom
     public enum State { Lobby, Running, Ended };
     public State GameState { get; set; }
     public string Name { get; }
-    public List<IPlayer> Players { get; set; } = new List<IPlayer>();
-    public int MaxPlayers { get; } = 10;
+    public List<IPlayer> Players { get; set; }
+    public int MaxPlayers { get; set; }
     public DateTime StartedAt { get; set; }
-    public List<Game> Games { get; set; } = new List<Game>();
+    public List<Game> Games { get; set; }
 
     public GameRoom(string name)
     {
         Name = name;
         GameState = State.Lobby;
+        Players = new List<IPlayer>();
+        MaxPlayers = 10;
+        Games = new List<Game>(MaxPlayers);
     }
 
     public void Start()
@@ -31,11 +34,20 @@ public class GameRoom : IGameRoom
 
     public void AddPlayer(IPlayer player)
     {
-        Players.Add(player);
+        if (Players.Count >= MaxPlayers)
+        {
+            throw new Exception("Room is full");
+        }
+        else
+        {
+
+            Players.Add(player);
+        }
     }
 
     public void RemovePlayer(IPlayer player)
     {
+        if (Players.Count == 0) { return; }
         Players.Remove(player);
     }
 
@@ -51,4 +63,3 @@ public class GameRoom : IGameRoom
         return timeInSeconds;
     }
 }
-

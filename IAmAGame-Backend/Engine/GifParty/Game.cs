@@ -5,7 +5,7 @@ public class Game
     public enum State { ChoosingPhrase, Submissions, Voting, Ended };
     public State GameState { get; set; }
     public Boolean Current { get; set; }
-    public string Phrase { get; set; }
+    public string? Phrase { get; set; }
     public DateTime startedAt { get; set; }
     public List<Submission> Submissions { get; set; } = new List<Submission>();
 
@@ -50,4 +50,3 @@ public class Submission
     public string? GifUrl { get; set; }
     public DateTime submittedAt = DateTime.Now;
 }
-
