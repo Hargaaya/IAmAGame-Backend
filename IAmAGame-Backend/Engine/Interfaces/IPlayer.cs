@@ -1,4 +1,4 @@
-﻿namespace IAmAGame_Backend.Engine.Interface;
+﻿namespace IAmAGame_Backend.Engine.Interfaces;
 
 public interface IPlayer
 {
