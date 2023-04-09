@@ -1,4 +1,5 @@
 using IAmAGame_Backend.Engine.GifParty;
+using IAmAGame_Backend.Hubs;
 using IAmAGame_Backend.Persistance;
 using IAmAGame_Backend.Utils;
 
@@ -22,6 +23,8 @@ builder.Services.AddCors(opt =>
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSignalR();
+
 
 WebApplication app = builder.Build();
 
@@ -34,6 +37,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseRouting();
 app.UseCors(myAllowSpecificOrigins);
+
+app.MapHub<GifPartyHub>("/hub/gifparty");
 
 app.MapPost("/room/{gameType}", (string gameType) =>
 {
