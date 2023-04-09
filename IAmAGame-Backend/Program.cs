@@ -2,6 +2,23 @@ using IAmAGame_Backend.Engine.GifParty;
 using IAmAGame_Backend.Persistance;
 using IAmAGame_Backend.Utils;
 
+string myAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+string originsString = builder.Configuration["AllowedOrigins"] ?? "*";
+builder.Services.AddCors(opt =>
+{
+    opt.AddPolicy(name: myAllowSpecificOrigins, policyBuilder =>
+    {
+        policyBuilder.WithOrigins(originsString)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()
+            .SetIsOriginAllowed((host) => true);
+    });
+});
+
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -16,6 +33,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseRouting();
+app.UseCors(myAllowSpecificOrigins);
+
 app.MapPost("/room/{gameType}", (string gameType) =>
 {
     // TODO: Switch statement once we get one more game up.
