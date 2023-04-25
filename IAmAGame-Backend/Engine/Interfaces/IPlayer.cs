@@ -2,8 +2,9 @@
 
 public interface IPlayer
 {
-    Guid Id { get; }
-    string Name { get; }
-    int Score { get; }
+  Guid Id { get; }
+  string Name { get; }
+  int Score { get; set; }
+  bool IsReady { get; set; }
 }
 
