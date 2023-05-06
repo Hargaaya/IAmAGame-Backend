@@ -1,5 +1,4 @@
 ﻿using IAmAGame_Backend.Engine.GifParty;
-using IAmAGame_Backend.Engine.Interfaces;
 using IAmAGame_Backend.Persistance;
 using Microsoft.AspNetCore.SignalR;
 
@@ -33,10 +32,7 @@ public class GifPartyHub : Hub
   {
     var game = _db.Get<GameRoom>(key);
 
-    if (game == null)
-    {
-      return;
-    }
+    if (game == null) return;
 
     var player = new Player
     {
@@ -63,10 +59,7 @@ public class GifPartyHub : Hub
   {
     var game = _db.Get<GameRoom>(key);
 
-    if (game == null)
-    {
-      return;
-    }
+    if (game == null) return;
 
     game.RemovePlayer(player);
 
@@ -83,19 +76,13 @@ public class GifPartyHub : Hub
   {
     var game = _db.Get<GameRoom>(key);
 
-    if (game == null)
-    {
-      return;
-    }
+    if (game == null) return;
 
     var players = game.GetPlayers();
 
     var player = players.Find(player => player.Id == id);
 
-    if (player == null)
-    {
-      return;
-    }
+    if (player == null) return;
 
     Clients.Client(Context.ConnectionId).SendAsync("ReceivePlayer", player);
   }
@@ -104,10 +91,7 @@ public class GifPartyHub : Hub
   {
     var game = _db.Get<GameRoom>(key);
 
-    if (game == null)
-    {
-      return;
-    }
+    if (game == null) return;
 
     var players = game.GetPlayers();
 
@@ -124,10 +108,7 @@ public class GifPartyHub : Hub
   {
     var game = _db.Get<GameRoom>(key);
 
-    if (game == null)
-    {
-      return;
-    }
+    if (game == null) return;
 
     game.SetPlayerReadyState(player, ready);
 
@@ -142,10 +123,7 @@ public class GifPartyHub : Hub
   {
     var game = _db.Get<GameRoom>(key);
 
-    if (game == null)
-    {
-      return;
-    }
+    if (game == null) return;
 
     Groups.AddToGroupAsync(Context.ConnectionId, key);
   }
