@@ -43,21 +43,16 @@ app.MapHub<GifPartyHub>("/hub/gifparty");
 
 app.MapPost("/room/{gameType}", (string gameType, IRedisDatabase db) =>
 {
-    // TODO: Switch statement once we get one more game up.
-    if (gameType == "gif-party")
+    if (gameType != "gif-party")
     {
-        // TODO: Dependency Inject this instead, after getting started.
-        var db = new RedisDatabase();
-
-    var key = KeyGenerator.GenerateRoomKey();
-        var game = new GameRoom(key);
-
-        db.Set(key, game);
-
-        return key;
+        return null;
     }
 
-    return null;
+    var key = KeyGenerator.GenerateRoomKey();
+    var game = new GameRoom(key);
+    db.Set(key, game);
+
+    return key;
 });
 
 app.Run();
