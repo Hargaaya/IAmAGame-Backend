@@ -1,8 +1,8 @@
 ﻿namespace IAmAGame_Backend.Utils;
 
-public class KeyGenerator
+public static class KeyGenerator
 {
-    public string GenerateRoomKey()
+    public static string GenerateRoomKey()
     {
         string key = "";
         Random random = new Random();

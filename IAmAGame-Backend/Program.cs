@@ -48,7 +48,7 @@ app.MapPost("/room/{gameType}", (string gameType) =>
         // TODO: Dependency Inject this instead, after getting started.
         var db = new RedisDatabase();
 
-        var key = new KeyGenerator().GenerateRoomKey();
+    var key = KeyGenerator.GenerateRoomKey();
         var game = new GameRoom(key);
 
         db.Set(key, game);
