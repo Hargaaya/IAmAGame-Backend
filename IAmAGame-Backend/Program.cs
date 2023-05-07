@@ -21,6 +21,7 @@ builder.Services.AddCors(opt =>
 });
 
 // Add services to the container.
+builder.Services.AddSingleton<IRedisDatabase, RedisDatabase>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
@@ -40,7 +41,7 @@ app.UseCors(myAllowSpecificOrigins);
 
 app.MapHub<GifPartyHub>("/hub/gifparty");
 
-app.MapPost("/room/{gameType}", (string gameType) =>
+app.MapPost("/room/{gameType}", (string gameType, IRedisDatabase db) =>
 {
     // TODO: Switch statement once we get one more game up.
     if (gameType == "gif-party")
