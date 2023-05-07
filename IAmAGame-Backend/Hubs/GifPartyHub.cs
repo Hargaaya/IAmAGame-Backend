@@ -6,125 +6,149 @@ namespace IAmAGame_Backend.Hubs;
 
 public class GifPartyHub : Hub
 {
+    private IRedisDatabase _db;
 
-  private RedisDatabase _db;
-
-  public GifPartyHub()
-  {
-    _db = new RedisDatabase();
-  }
-
-  public void GetGame(string key)
-  {
-    var game = _db.Get<GameRoom>(key);
-
-    if (game == null)
+    public GifPartyHub(IRedisDatabase db)
     {
-      Clients.Client(Context.ConnectionId).SendAsync("ReceiveGame", "error");
-      Console.WriteLine("game is null, sending error");
-      return;
+        _db = db;
     }
 
-    Clients.Client(Context.ConnectionId).SendAsync("ReceiveGame", game);
-  }
-
-  public void AddPlayer(string key, string name)
-  {
-    var game = _db.Get<GameRoom>(key);
-
-    if (game == null) return;
-
-    var player = new Player
+    public void GetGame(string key)
     {
-      Name = name,
-      Score = 0,
-    };
+        try
+        {
+            var game = _db.Get<GameRoom>(key);
 
-    game.AddPlayer(player);
-
-    _db.Set(key, game);
-
-    //send back game data to the player who joined
-    Clients.Client(Context.ConnectionId).SendAsync("ReceivePlayer", player);
-    Clients.Client(Context.ConnectionId).SendAsync("ReceiveGame", game);
-
-    //send new player to all other players
-    Clients.Group(key).SendAsync("PlayerJoined", player);
-
-    //add player to group
-    Groups.AddToGroupAsync(Context.ConnectionId, key);
-  }
-
-  public void RemovePlayer(string key, Player player)
-  {
-    var game = _db.Get<GameRoom>(key);
-
-    if (game == null) return;
-
-    game.RemovePlayer(player);
-
-    _db.Set(key, game);
-
-    //send that player left to all other players
-    Clients.Group(key).SendAsync("PlayerLeft", player);
-
-    //remove player from group
-    Groups.RemoveFromGroupAsync(Context.ConnectionId, key);
-  }
-
-  public void GetPlayer(string key, Guid id)
-  {
-    var game = _db.Get<GameRoom>(key);
-
-    if (game == null) return;
-
-    var players = game.GetPlayers();
-
-    var player = players.Find(player => player.Id == id);
-
-    if (player == null) return;
-
-    Clients.Client(Context.ConnectionId).SendAsync("ReceivePlayer", player);
-  }
-
-  public void GetPlayers(string key)
-  {
-    var game = _db.Get<GameRoom>(key);
-
-    if (game == null) return;
-
-    var players = game.GetPlayers();
-
-    Console.WriteLine("players in game " + game.Name);
-    Console.WriteLine("players count " + players.Count);
-
-    foreach (var player in players)
-    {
-      Console.WriteLine("player " + player.Name);
+            Clients.Client(Context.ConnectionId).SendAsync("ReceiveGame", game);
+        }
+        catch (NullReferenceException ex)
+        {
+            Clients.Client(Context.ConnectionId).SendAsync("ReceiveGame", "error");
+            Console.WriteLine($"GifPartyHub.GetGame: {ex.Message}");
+        }
     }
-  }
 
-  public void SetPlayerReadyState(string key, Player player, bool ready)
-  {
-    var game = _db.Get<GameRoom>(key);
+    public void AddPlayer(string key, string name)
+    {
+        try
+        {
+            var game = _db.Get<GameRoom>(key);
 
-    if (game == null) return;
+            var player = game.AddPlayer(name);
 
-    game.SetPlayerReadyState(player, ready);
+            _db.Set(key, game);
 
-    _db.Set(key, game);
+            Console.WriteLine($"Player {player.Name}");
 
-    var players = game.GetPlayers();
+            //send back game data to the player who joined
+            Clients.Client(Context.ConnectionId).SendAsync("ReceivePlayer", player);
+            Clients.Client(Context.ConnectionId).SendAsync("ReceiveGame", game);
 
-    Clients.Group(key).SendAsync("ReceiveGame", game);
-  }
+            //send new player to all other players
+            Clients.Group(key).SendAsync("PlayerJoined", player);
 
-  public void AddScreen(string key)
-  {
-    var game = _db.Get<GameRoom>(key);
+            //add player to group
+            Groups.AddToGroupAsync(Context.ConnectionId, key);
+        }
+        catch (NullReferenceException ex)
+        {
+            Console.WriteLine($"GifPartyHub.AddPlayer: {ex.Message}");
+        }
+    }
 
-    if (game == null) return;
+    public void RemovePlayer(string key, Player player)
+    {
+        try
+        {
+            var game = _db.Get<GameRoom>(key);
 
-    Groups.AddToGroupAsync(Context.ConnectionId, key);
-  }
+            game.RemovePlayer(player);
+
+            _db.Set(key, game);
+
+            //send that player left to all other players
+            Clients.Group(key).SendAsync("PlayerLeft", player);
+
+            //remove player from group
+            Groups.RemoveFromGroupAsync(Context.ConnectionId, key);
+        }
+        catch (NullReferenceException ex)
+        {
+            Console.WriteLine($"GifPartyHub.RemovePlayer: {ex.Message}");
+        }
+
+    }
+
+    public void GetPlayer(string key, Guid id)
+    {
+        try
+        {
+            var game = _db.Get<GameRoom>(key);
+
+            var player = game.GetPlayer(id);
+
+            Clients.Client(Context.ConnectionId).SendAsync("ReceivePlayer", player);
+        }
+        catch (NullReferenceException ex)
+        {
+            Console.WriteLine($"GifPartyHub.GetPlayer: {ex.Message}");
+        }
+
+    }
+
+    public void GetPlayers(string key)
+    {
+        try
+        {
+            var game = _db.Get<GameRoom>(key);
+
+            var players = game.Players;
+
+            Console.WriteLine("players in game " + game.Name);
+            Console.WriteLine("players count " + players.Count);
+            players.ForEach(p => Console.WriteLine("player: " + p.Name));
+
+            /*foreach (var player in players)
+            {
+                Console.WriteLine("player " + player.Name);
+            }*/
+        }
+        catch (NullReferenceException ex)
+        {
+            Console.WriteLine($"GifPartyHub.GetPlayers: {ex.Message}");
+        }
+
+    }
+
+    public void SetPlayerReadyState(string key, Player player, bool isReady)
+    {
+        try
+        {
+            var game = _db.Get<GameRoom>(key);
+
+            game.GetPlayer(player.Id).IsReady = isReady;
+
+            _db.Set(key, game);
+
+            Clients.Group(key).SendAsync("ReceiveGame", game);
+        }
+        catch (NullReferenceException ex)
+        {
+            Console.WriteLine($"GifPartyHub.AddScreen: {ex.Message}");
+        }
+    }
+
+    public void AddScreen(string key)
+    {
+        try
+        {
+            var game = _db.Get<GameRoom>(key);
+
+            Groups.AddToGroupAsync(Context.ConnectionId, key);
+        }
+        catch (NullReferenceException ex)
+        {
+            Console.WriteLine($"GifPartyHub.AddScreen: {ex.Message}");
+        }
+    }
 }
