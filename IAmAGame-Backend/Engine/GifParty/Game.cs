@@ -48,5 +48,6 @@ public class Submission
 {
   public Guid PlayerId { get; set; }
   public string? GifUrl { get; set; }
+  public int Votes { get; set; } = 0;
   public DateTime submittedAt = DateTime.Now;
 }
