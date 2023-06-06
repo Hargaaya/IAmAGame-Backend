@@ -69,7 +69,7 @@ public class GifPartyHub : Hub
       if (winner == null)
         throw new NullReferenceException("Winner is null");
 
-      winner.Score += 1;
+      winner.Score += 100;
 
       _db.Set(key, game);
 
