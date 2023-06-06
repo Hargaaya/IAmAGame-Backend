@@ -40,6 +40,11 @@ public class Game
       Submission submission = new Submission { GifUrl = gifUrl, PlayerId = playerId };
       Submissions.Add(submission);
     }
+    else
+    {
+      Submission submission = Submissions.Find(item => item.PlayerId == playerId);
+      submission.GifUrl = gifUrl;
+    }
   }
 
 }
